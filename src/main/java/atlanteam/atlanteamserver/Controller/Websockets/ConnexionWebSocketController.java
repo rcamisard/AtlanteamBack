@@ -28,7 +28,7 @@ public class ConnexionWebSocketController {
 
     @OnOpen
     @ResponseStatus(HttpStatus.OK)
-    public void open(@PathParam("page") String page, @PathParam("username") String username, Session session) throws IOException {
+    public void open(@PathParam("page") String page, @PathParam("username") String username, Session session) throws IOException, EncodeException {
 
         System.out.println("RoomId : " + page);
         System.out.println("RoomMap : " + roomMap);
@@ -42,15 +42,15 @@ public class ConnexionWebSocketController {
             roomMap.put(page,set);
             userRoomMap.computeIfAbsent(page, k -> new ArrayList<String>()).add(username);
             System.out.println("RoomMap : " + roomMap);
-        }else{
+        } else {
             System.out.println("set: " + set.toString());
             set.add(session);
             Set<Session> sessions = roomMap.get(page);
             userRoomMap.get(page).add(username);
             // Push messages to all users in the room
             for(Session s : sessions){
-                s.getBasicRemote().sendText(username + " joined") ;
-                s.getBasicRemote().sendText(userRoomMap.toString());
+                Object users = userRoomMap.get(page);
+                s.getBasicRemote().sendText(users.toString());
             }
         }
         // Number of rooms + 1
