@@ -15,7 +15,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @Component
-@ServerEndpoint("/webSocket/{page}")
+@ServerEndpoint("/connect/{page}")
 public class ConnexionWebSocketController {
     private Logger log = LoggerFactory.getLogger(this.getClass());
 
@@ -33,10 +33,16 @@ public class ConnexionWebSocketController {
             roomMap.put(page,set);
         }else{
             set.add(session);
+            Set<Session> sessions = roomMap.get(page);
+            // Push messages to all users in the room
+            for(Session s : sessions){
+                s.getBasicRemote().sendText("User " + session.getId()+ " a rejoint la room") ;
+            }
         }
         // Number of rooms + 1
         onlinePersons.incrementAndGet();
-        log.info("new user{}Enter the chat,Number of rooms:{}",session.getId(),onlinePersons);
+
+
     }
 
     @OnClose
@@ -69,5 +75,13 @@ public class ConnexionWebSocketController {
         } catch (Throwable e) {
             log.error("unknown error");
         }
+    }
+
+    public static Map<String, Set> getRoomMap() {
+        return roomMap;
+    }
+
+    public static void setRoomMap(Map<String, Set> roomMap) {
+        ConnexionWebSocketController.roomMap = roomMap;
     }
 }
