@@ -15,7 +15,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @Component
-@ServerEndpoint("/connect/{page}")
+@ServerEndpoint("/connect/{page}/{username}")
 public class ConnexionWebSocketController {
     private Logger log = LoggerFactory.getLogger(this.getClass());
 
@@ -24,25 +24,31 @@ public class ConnexionWebSocketController {
     private static Map<String,Set> roomMap = new ConcurrentHashMap(8);
 
     @OnOpen
-    public void open(@PathParam("page") String page, Session session) throws IOException {
+    public void open(@PathParam("page") String page, @PathParam("username") String username, Session session) throws IOException {
 
-
+        System.out.println("RoomId : " + page);
+        System.out.println("RoomMap : " + roomMap);
         Set set = roomMap.get(page);
+        System.out.println("Set : " + set);
+
         // If it's a new room, create a mapping, and if the room already exists, put the user in.
         if(set == null){
             set = new CopyOnWriteArraySet();
             set.add(session);
             roomMap.put(page,set);
+            System.out.println("RoomMap : " + roomMap);
         }else{
+            System.out.println("set: " + set.toString());
             set.add(session);
             Set<Session> sessions = roomMap.get(page);
             // Push messages to all users in the room
             for(Session s : sessions){
-                s.getBasicRemote().sendText("User " + session.getId()+ " a rejoint la room") ;
+                s.getBasicRemote().sendText(username + " joined") ;
             }
         }
         // Number of rooms + 1
         onlinePersons.incrementAndGet();
+        //return ((Session) roomMap.get(page)).getUserPrincipal().getName();
     }
 
     @OnClose
@@ -57,7 +63,7 @@ public class ConnexionWebSocketController {
     }
 
     @OnMessage
-    public void reveiveMessage(@PathParam("page") String page, Session session,String message) throws IOException {
+    public void receiveMessage(@PathParam("page") String page, Session session, String message) throws IOException {
         log.info("Accept Users{}Data:{}",session.getId(),message);
         // Stitching together user information
         String msg = session.getId()+" : "+ message;
