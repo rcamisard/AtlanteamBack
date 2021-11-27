@@ -37,9 +37,15 @@ public class ConnexionWebSocketController {
                 s.getBasicRemote().sendText("GAME_STARTING");
             }
         } else if (message.contains("moveFish")) {
-            String roomId = message.replace("moveFish", "");
-            roomId = roomId.replace("/", " ");
+            String[] messageSplit = message.split("/");
+            String roomId = messageSplit[2];
+            String username = messageSplit[3];
+            String deltaY = messageSplit[4];
+            String text = "{\"username\": \"" + username + "\", \"deltaY\": " + deltaY + "}";
             Set<Session> sessions = roomMap.get(roomId);
+            for (Session s : sessions){
+                s.getBasicRemote().sendText(text);
+            }
         }
     }
 
