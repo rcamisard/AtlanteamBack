@@ -1,4 +1,4 @@
-package atlanteam.atlanteamserver.Controller;
+package atlanteam.atlanteamserver.Controller.Websockets;
 
 
 import org.slf4j.Logger;
@@ -13,7 +13,6 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @Component

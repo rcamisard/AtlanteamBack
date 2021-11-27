@@ -1,4 +1,4 @@
-package atlanteam.atlanteamserver.Controller;
+package atlanteam.atlanteamserver.Controller.Websockets;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,6 +25,8 @@ public class ConnexionWebSocketController {
 
     @OnOpen
     public void open(@PathParam("page") String page, Session session) throws IOException {
+
+
         Set set = roomMap.get(page);
         // If it's a new room, create a mapping, and if the room already exists, put the user in.
         if(set == null){
@@ -41,8 +43,6 @@ public class ConnexionWebSocketController {
         }
         // Number of rooms + 1
         onlinePersons.incrementAndGet();
-
-
     }
 
     @OnClose
