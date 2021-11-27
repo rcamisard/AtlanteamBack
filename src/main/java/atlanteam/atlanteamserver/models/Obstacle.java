@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 public class Obstacle extends Agent {
 
-    private float delayFall;
+    private double delayFall;
     public Obstacle(Position position) {
         super(position);
     }
@@ -15,13 +15,14 @@ public class Obstacle extends Agent {
         lastTimeUpdated = System.currentTimeMillis();
     }
 
-    public float getDelayFall() {
+    public double getDelayFall() {
         return delayFall;
     }
 
-    public void setDelayFall(float delayFall) {
+    public void setDelayFall(double delayFall) {
         this.delayFall = delayFall;
     }
 
     public void moveY(int value){position.setY(value + speedY + position.getY());}
-}
+
+    }

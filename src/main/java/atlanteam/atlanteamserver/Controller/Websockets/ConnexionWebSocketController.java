@@ -31,40 +31,36 @@ public class ConnexionWebSocketController {
     private static List<Player> listPlayer = new ArrayList<>();
     private static Map<String,Set> roomMap = new ConcurrentHashMap(8);
     private static Map<String, List<String>> userRoomMap = new HashMap<>();
-
+    private static int countIterations = 0;
+    private static List<Obstacle> obstacleList = new ArrayList<>();
     @OnMessage
     public void startGame(String message) throws IOException {
 
         if (message.contains("startGame")) {
-            System.out.println("startGame");
             String roomId = message.replace("startGame", "");
             roomId = roomId.replace("/", "");
             Set<Session> sessions = roomMap.get(roomId);
             String textObstacle = "";
             textObstacle = textObstacle + "{\"type\": \"obstacles\",";
 
-            List<Obstacle> obstacleList = new ArrayList<>();
-            for (int i = 1; i <= 90; i++){
+            for (int i = 1; i <= 90; i++) {
                 Random ran = new Random();
                 int x = ran.nextInt(50000) - 50000;
                 Obstacle obstacle = new Obstacle(new Position(x, 0));
-                obstacle.setDelayFall(Math.abs(obstacle.getPosition().getX()));
+                obstacle.setDelayFall(Math.floor(Math.random() * 100));
                 obstacleList.add(obstacle);
                 textObstacle = textObstacle + "\"" + i + "\": {\"positionX\":\"" + obstacle.getPosition().getX() + "\", \"positionY\": " + obstacle.getPosition().getY() + "}";
-                if (i != 90){
+                if (i != 90) {
                     textObstacle = textObstacle + ",";
                 }
             }
             textObstacle = textObstacle + "}";
-            for (Session s : sessions){
+            for (Session s : sessions) {
                 s.getBasicRemote().sendText("GAME_STARTING");
                 s.getBasicRemote().sendText(textObstacle.toString());
 
             }
-          }
-
-        else if (message.contains("moveFish")) {
-            System.out.println("moveFish");
+        } else if (message.contains("moveFish")) {
             String[] messageSplit = message.split("/");
             String roomId = messageSplit[2];
             String username = messageSplit[3];
@@ -75,21 +71,39 @@ public class ConnexionWebSocketController {
             Set<Session> sessions = roomMap.get(roomId);
 
             String text = "{\"username\": \"" + username + "\", \"deltaY\": " + deltaY + "}";
-            for (Session s : sessions){
+            for (Session s : sessions) {
                 s.getBasicRemote().sendText(text);
-                if (player.get().getPosition().getX() <= -50000){
-                    String textFinish = "{\"username\": \"" + username + "\", \"place\": " + listPlayer.stream().filter(p-> p.getRoom().equals(roomId) && p.getPosition().getX() <= -50000).count() + 1 + "}";
+                if (player.get().getPosition().getX() <= -50000) {
+                    String textFinish = "{\"username\": \"" + username + "\", \"place\": " + listPlayer.stream().filter(p -> p.getRoom().equals(roomId) && p.getPosition().getX() <= -50000).count() + 1 + "}";
                     s.getBasicRemote().sendText(textFinish);
                 }
             }
 
 
-        } /*else if (message.contains("loopGame")){
+        } else if (message.contains("loopGame")) {
+            countIterations++;
+            for (Obstacle obstacle : obstacleList) {
+                if (countIterations > obstacle.getDelayFall() && obstacle.getPosition().getY() >= (600 * 55 / 800)) {
+                    obstacle.getPosition().setY(10);
+                }
+            }
+
             String roomId = message.replace("loopGame", "");
             roomId = roomId.replace("/", "");
             Set<Session> sessions = roomMap.get(roomId);
-            String finalRoomId = roomId;
-            List<Player> listPlayerInRoom = listPlayer.stream().filter(p -> p.getRoom().equals(finalRoomId)).collect(Collectors.toList());
+            String textObstacle = "";
+            textObstacle = textObstacle + "{\"type\": \"obstacles\",";
+            for (int i = 1; i <= 90; i++) {
+                textObstacle = textObstacle + "\"" + i + "\": {\"positionX\":\"" + obstacleList.get(i - 1).getPosition().getX() + "\", \"positionY\": " + obstacleList.get(i - 1).getPosition().getY() + "}";
+                if (i != 90) {
+                    textObstacle = textObstacle + ",";
+                }
+            }
+
+            textObstacle = textObstacle + "}";
+            for (Session s : sessions) {
+                s.getBasicRemote().sendText(textObstacle.toString());
+            /*List<Player> listPlayerInRoom = listPlayer.stream().filter(p -> p.getRoom().equals(finalRoomId)).collect(Collectors.toList());
             List<Player> listPlayerInRoomStillInGame = listPlayerInRoom.stream().filter(p -> p.getPosition().getX() > -50000).collect(Collectors.toList());
             String textPlayer = "{\"type\": \"player\",";
                 for (Player player : listPlayerInRoomStillInGame){
@@ -102,9 +116,10 @@ public class ConnexionWebSocketController {
                 textPlayer = textPlayer + "}";
                 for (Session s : sessions){
                     s.getBasicRemote().sendText(textPlayer);
-                }
-            } */
+                } */
+            }
         }
+    }
 
     @OnOpen
     @ResponseStatus(HttpStatus.OK)
