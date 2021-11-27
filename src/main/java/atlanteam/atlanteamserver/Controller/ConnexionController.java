@@ -17,7 +17,7 @@ public class ConnexionController {
     @ResponseStatus(HttpStatus.OK)
     public String generateRoomId(){
         System.out.println(connexionService);
-       return connexionService.generateRoomId();
+        return connexionService.generateRoomId();
     }
 
 }

@@ -22,13 +22,13 @@ public class ConnexionService {
         System.out.println("b: " + roomMap);
         String roomId = "";
         if (!roomMap.isEmpty()) {
-            while (roomMap.get("page").contains(roomId) && roomId.equals("")) {
+            do {
                 Random r = new Random();
                 roomId = "";
                 for (int i = 0; i < 5; i++) {
                     roomId += randomCharset.charAt(r.nextInt(randomCharset.length()));
                 }
-            }
+            } while (roomMap.containsKey(roomId));
         } else {
             Random r = new Random();
             roomId = "";
