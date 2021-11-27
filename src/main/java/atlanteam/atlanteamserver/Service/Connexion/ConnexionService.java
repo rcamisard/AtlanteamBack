@@ -17,16 +17,18 @@ public class ConnexionService {
     public String generateRoomId()
     {
         String randomCharset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        System.out.println("a: " + connexionWebSocketController);
         Map<String, Set> roomMap = connexionWebSocketController.getRoomMap();
+        System.out.println("b: " + roomMap);
         String roomId = "";
         if (!roomMap.isEmpty()) {
-            while (roomMap.get("page").contains(roomId) && roomId.equals("")) {
+            do {
                 Random r = new Random();
                 roomId = "";
                 for (int i = 0; i < 5; i++) {
                     roomId += randomCharset.charAt(r.nextInt(randomCharset.length()));
                 }
-            }
+            } while (roomMap.containsKey(roomId));
         } else {
             Random r = new Random();
             roomId = "";

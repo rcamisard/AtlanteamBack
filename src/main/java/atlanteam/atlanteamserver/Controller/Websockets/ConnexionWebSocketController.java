@@ -2,43 +2,72 @@ package atlanteam.atlanteamserver.Controller.Websockets;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
+import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
 import javax.websocket.*;
 import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
 import java.io.IOException;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.atomic.AtomicInteger;
 
-@Component
-@ServerEndpoint("/connect/{page}")
+@Controller
+@ServerEndpoint("/connect/{page}/{username}")
 public class ConnexionWebSocketController {
     private Logger log = LoggerFactory.getLogger(this.getClass());
 
     private static AtomicInteger onlinePersons = new AtomicInteger(0);
 
     private static Map<String,Set> roomMap = new ConcurrentHashMap(8);
+    private static Map<String, List<String>> userRoomMap = new HashMap<>();
+
+    @OnMessage
+    public void startGame(String message) throws IOException {
+        if (message.contains("startGame")) {
+            String roomId = message.replace("startGame", "");
+            roomId = roomId.replace("/", "");
+            Set<Session> sessions = roomMap.get(roomId);
+            for (Session s : sessions){
+                s.getBasicRemote().sendText("GAME_STARTING");
+            }
+        } else if (message.contains("moveFish")) {
+            String roomId = message.replace("moveFish", "");
+            roomId = roomId.replace("/", " ");
+            Set<Session> sessions = roomMap.get(roomId);
+        }
+    }
 
     @OnOpen
-    public void open(@PathParam("page") String page, Session session) throws IOException {
+    @ResponseStatus(HttpStatus.OK)
+    public void open(@PathParam("page") String page, @PathParam("username") String username, Session session) throws IOException, EncodeException {
 
-
+        System.out.println("RoomId : " + page);
+        System.out.println("RoomMap : " + roomMap);
         Set set = roomMap.get(page);
+        System.out.println("Set : " + set);
+
         // If it's a new room, create a mapping, and if the room already exists, put the user in.
-        if(set == null){
+        if (set == null) {
             set = new CopyOnWriteArraySet();
             set.add(session);
             roomMap.put(page,set);
-        }else{
+            userRoomMap.computeIfAbsent(page, k -> new ArrayList<String>()).add(username);
+            System.out.println("RoomMap : " + roomMap);
+        } else {
+            System.out.println("set: " + set.toString());
             set.add(session);
             Set<Session> sessions = roomMap.get(page);
+            userRoomMap.get(page).add(username);
             // Push messages to all users in the room
-            for(Session s : sessions){
-                s.getBasicRemote().sendText("User " + session.getId()+ " a rejoint la room") ;
+            for (Session s : sessions){
+                Object users = userRoomMap.get(page);
+                s.getBasicRemote().sendText(users.toString());
             }
         }
         // Number of rooms + 1
@@ -54,18 +83,6 @@ public class ConnexionWebSocketController {
         // Number of rooms - 1
         onlinePersons.decrementAndGet();
         log.info("user{}Quit chatting,Number of rooms:{}",session.getId(),onlinePersons);
-    }
-
-    @OnMessage
-    public void reveiveMessage(@PathParam("page") String page, Session session,String message) throws IOException {
-        log.info("Accept Users{}Data:{}",session.getId(),message);
-        // Stitching together user information
-        String msg = session.getId()+" : "+ message;
-        Set<Session> sessions = roomMap.get(page);
-        // Push messages to all users in the room
-        for(Session s : sessions){
-            s.getBasicRemote().sendText(msg);
-        }
     }
 
     @OnError
