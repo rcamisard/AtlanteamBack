@@ -13,7 +13,7 @@ public class ConnexionController {
     @Autowired
     ConnexionService connexionService;
 
-    @GetMapping("/lobby")
+    @GetMapping("/connect")
     @ResponseStatus(HttpStatus.OK)
     public String generateRoomId(){
         System.out.println(connexionService);

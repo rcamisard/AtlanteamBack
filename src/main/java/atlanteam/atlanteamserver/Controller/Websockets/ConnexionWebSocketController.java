@@ -2,7 +2,10 @@ package atlanteam.atlanteamserver.Controller.Websockets;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
 import javax.websocket.*;
 import javax.websocket.server.PathParam;
@@ -22,8 +25,10 @@ public class ConnexionWebSocketController {
     private static AtomicInteger onlinePersons = new AtomicInteger(0);
 
     private static Map<String,Set> roomMap = new ConcurrentHashMap(8);
+    private static Map<String, String> userRoomMap = new ConcurrentHashMap();
 
     @OnOpen
+    @ResponseStatus(HttpStatus.OK)
     public void open(@PathParam("page") String page, @PathParam("username") String username, Session session) throws IOException {
 
         System.out.println("RoomId : " + page);
@@ -36,19 +41,21 @@ public class ConnexionWebSocketController {
             set = new CopyOnWriteArraySet();
             set.add(session);
             roomMap.put(page,set);
+            userRoomMap.put(page, username);
             System.out.println("RoomMap : " + roomMap);
         }else{
             System.out.println("set: " + set.toString());
             set.add(session);
             Set<Session> sessions = roomMap.get(page);
+            userRoomMap.put(page, username);
             // Push messages to all users in the room
             for(Session s : sessions){
                 s.getBasicRemote().sendText(username + " joined") ;
+                s.getBasicRemote().sendText(userRoomMap.toString());
             }
         }
         // Number of rooms + 1
         onlinePersons.incrementAndGet();
-        //return ((Session) roomMap.get(page)).getUserPrincipal().getName();
     }
 
     @OnClose
