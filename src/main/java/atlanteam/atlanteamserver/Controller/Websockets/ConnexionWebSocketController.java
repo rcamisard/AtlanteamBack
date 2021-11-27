@@ -11,8 +11,7 @@ import javax.websocket.*;
 import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
 import java.io.IOException;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -25,7 +24,7 @@ public class ConnexionWebSocketController {
     private static AtomicInteger onlinePersons = new AtomicInteger(0);
 
     private static Map<String,Set> roomMap = new ConcurrentHashMap(8);
-    private static Map<String, String> userRoomMap = new ConcurrentHashMap();
+    private static Map<String, List<String>> userRoomMap = new HashMap<>();
 
     @OnOpen
     @ResponseStatus(HttpStatus.OK)
@@ -41,13 +40,13 @@ public class ConnexionWebSocketController {
             set = new CopyOnWriteArraySet();
             set.add(session);
             roomMap.put(page,set);
-            userRoomMap.put(page, username);
+            userRoomMap.computeIfAbsent(page, k -> new ArrayList<String>()).add(username);
             System.out.println("RoomMap : " + roomMap);
         }else{
             System.out.println("set: " + set.toString());
             set.add(session);
             Set<Session> sessions = roomMap.get(page);
-            userRoomMap.put(page, username);
+            userRoomMap.get(page).add(username);
             // Push messages to all users in the room
             for(Session s : sessions){
                 s.getBasicRemote().sendText(username + " joined") ;
