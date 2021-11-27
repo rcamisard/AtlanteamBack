@@ -19,6 +19,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 @Controller
 @ServerEndpoint("/connect/{page}/{username}")
@@ -58,7 +59,7 @@ public class ConnexionWebSocketController {
                 s.getBasicRemote().sendText(textObstacle.toString());
 
             }
-        } else if (message.contains("moveFish")) {
+          } else if (message.contains("moveFish")) {
             String[] messageSplit = message.split("/");
             String roomId = messageSplit[2];
             String username = messageSplit[3];
@@ -68,7 +69,7 @@ public class ConnexionWebSocketController {
             player.get().moveY(Integer.valueOf(deltaY));
             Set<Session> sessions = roomMap.get(roomId);
 
-            String text = "{\"username\": \"" + username + "\", \"positionY\": " + player.get().getPosition().getY() + "}";
+            String text = "{\"username\": \"" + username + "\", \"deltaY\": " + player.get().getPosition().getY() + "}";
             for (Session s : sessions){
                 s.getBasicRemote().sendText(text);
                 if (player.get().getPosition().getX() <= -50000){
@@ -78,8 +79,27 @@ public class ConnexionWebSocketController {
             }
 
 
+        } else if (message.contains("loopGame")){
+            String roomId = message.replace("loopGame", "");
+            roomId = roomId.replace("/", "");
+            Set<Session> sessions = roomMap.get(roomId);
+            String finalRoomId = roomId;
+            List<Player> listPlayerInRoom = listPlayer.stream().filter(p -> p.getRoom().equals(finalRoomId)).collect(Collectors.toList());
+            List<Player> listPlayerInRoomStillInGame = listPlayerInRoom.stream().filter(p -> p.getPosition().getX() > -50000).collect(Collectors.toList());
+            String textPlayer = "{\"type\": \"player\",";
+                for (Player player : listPlayerInRoomStillInGame){
+                    player.moveX();
+                    textPlayer = textPlayer + "\"" + listPlayerInRoomStillInGame.indexOf(player) + 1 + "\": {\"positionX\":\"" + player.getPosition().getX() + "\", \"positionY\": " + player.getPosition().getY() + "}";
+                    if (!player.equals(listPlayerInRoomStillInGame.get(listPlayerInRoomStillInGame.size() -1))){
+                        textPlayer = textPlayer + ",";
+                    };
+                }
+                textPlayer = textPlayer + "}";
+                for (Session s : sessions){
+                    s.getBasicRemote().sendText(textPlayer);
+                }
+            }
         }
-    }
 
     @OnOpen
     @ResponseStatus(HttpStatus.OK)

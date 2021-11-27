@@ -7,6 +7,7 @@ public class Player extends Agent {
     private String room;
     private String username;
 
+
     ArrayList<Obstacle> obstacles;
     public Player(Position position, ArrayList<Obstacle> obstacles) {
         super(position);
@@ -17,6 +18,14 @@ public class Player extends Agent {
         if(!didHitObstacle()){
             long deltaTime = System.currentTimeMillis() - lastTimeUpdated;
             position.setX((int) (position.getX() + speedX * deltaTime));
+        } else {
+            try {
+                this.speedX = 0;
+                wait(2000);
+                this.speedX = 10;
+            } catch (Exception e) {
+                System.out.println("Erreur");
+            }
         }
         lastTimeUpdated = System.currentTimeMillis();
     }
