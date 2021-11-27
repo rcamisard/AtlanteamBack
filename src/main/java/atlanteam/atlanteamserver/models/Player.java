@@ -4,8 +4,10 @@ import java.util.ArrayList;
 
 public class Player extends Agent {
 
-    ArrayList<Obstacle> obstacles;
+    private String room;
+    private String username;
 
+    ArrayList<Obstacle> obstacles;
     public Player(Position position, ArrayList<Obstacle> obstacles) {
         super(position);
         this.obstacles = obstacles;
@@ -31,5 +33,21 @@ public class Player extends Agent {
                 return true;
         }
         return false;
+    }
+
+    public String getRoom() {
+        return room;
+    }
+
+    public void setRoom(String room) {
+        this.room = room;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
     }
 }
