@@ -34,7 +34,9 @@ public class ConnexionWebSocketController {
 
     @OnMessage
     public void startGame(String message) throws IOException {
+
         if (message.contains("startGame")) {
+            System.out.println("startGame");
             String roomId = message.replace("startGame", "");
             roomId = roomId.replace("/", "");
             Set<Session> sessions = roomMap.get(roomId);
@@ -59,7 +61,10 @@ public class ConnexionWebSocketController {
                 s.getBasicRemote().sendText(textObstacle.toString());
 
             }
-          } else if (message.contains("moveFish")) {
+          }
+
+        else if (message.contains("moveFish")) {
+            System.out.println("moveFish");
             String[] messageSplit = message.split("/");
             String roomId = messageSplit[2];
             String username = messageSplit[3];
@@ -69,7 +74,7 @@ public class ConnexionWebSocketController {
             player.get().moveY(Integer.valueOf(deltaY));
             Set<Session> sessions = roomMap.get(roomId);
 
-            String text = "{\"username\": \"" + username + "\", \"deltaY\": " + player.get().getPosition().getY() + "}";
+            String text = "{\"username\": \"" + username + "\", \"deltaY\": " + deltaY + "}";
             for (Session s : sessions){
                 s.getBasicRemote().sendText(text);
                 if (player.get().getPosition().getX() <= -50000){
@@ -79,7 +84,7 @@ public class ConnexionWebSocketController {
             }
 
 
-        } else if (message.contains("loopGame")){
+        } /*else if (message.contains("loopGame")){
             String roomId = message.replace("loopGame", "");
             roomId = roomId.replace("/", "");
             Set<Session> sessions = roomMap.get(roomId);
@@ -98,7 +103,7 @@ public class ConnexionWebSocketController {
                 for (Session s : sessions){
                     s.getBasicRemote().sendText(textPlayer);
                 }
-            }
+            } */
         }
 
     @OnOpen
