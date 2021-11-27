@@ -125,10 +125,7 @@ public class ConnexionWebSocketController {
     @ResponseStatus(HttpStatus.OK)
     public void open(@PathParam("page") String roomId, @PathParam("username") String username, Session session) throws IOException, EncodeException {
 
-        System.out.println("RoomId : " + roomId);
-        System.out.println("RoomMap : " + roomMap);
         Set set = roomMap.get(roomId);
-        System.out.println("Set : " + set);
 
         // If it's a new room, create a mapping, and if the room already exists, put the user in.
         if (set == null) {
@@ -136,9 +133,7 @@ public class ConnexionWebSocketController {
             set.add(session);
             roomMap.put(roomId,set);
             userRoomMap.computeIfAbsent(roomId, k -> new ArrayList<String>()).add(username);
-            System.out.println("RoomMap : " + roomMap);
         } else {
-            System.out.println("set: " + set.toString());
             set.add(session);
             Set<Session> sessions = roomMap.get(roomId);
             userRoomMap.get(roomId).add(username);
