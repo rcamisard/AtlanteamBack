@@ -23,7 +23,7 @@ public class Player extends Agent {
             try {
                 wait --;
                 if(wait > 0)
-                    this.speedX = 0.3;
+                    this.speedX = 0.8;
                 else{
                     this.speedX = 0;
                     wait = 100;

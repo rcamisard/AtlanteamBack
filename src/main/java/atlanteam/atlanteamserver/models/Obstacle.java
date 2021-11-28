@@ -33,9 +33,8 @@ public class Obstacle extends Agent {
         this.type = type;
     }
 
-    public void moveY(int value) {
-        position.setY(value + speedY + position.getY());
-    }
+
+    public void moveY(int value){position.setY(value + speedY + position.getY());}
 
 
     public void setSpeedX(double speedX) {

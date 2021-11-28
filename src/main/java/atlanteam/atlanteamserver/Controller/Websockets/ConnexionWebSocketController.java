@@ -61,6 +61,14 @@ public class ConnexionWebSocketController {
             obstacleList.add(shark);
             textObstacle = textObstacle + ",\"" + (NB_TRASH+1) + "\": {\"positionX\":\"" + shark.getPosition().getX() + "\", \"positionY\": " + "\"" + shark.getPosition().getY() + "\", \"typeObstacle\": " + "\"" + shark.getType() + "\"" + "}";
             textObstacle = textObstacle + "}";
+
+            for (Player player : listPlayer){
+                player.resetLastTimeUpdated();
+            }
+            for (Obstacle obstacle : obstacleList){
+                obstacle.resetLastTimeUpdated();
+            }
+
             for (Session s : sessions) {
                 s.getBasicRemote().sendText("GAME_STARTING");
                 s.getBasicRemote().sendText(textObstacle.toString());
@@ -71,19 +79,28 @@ public class ConnexionWebSocketController {
             String roomId = messageSplit[2];
             String username = messageSplit[3];
             String deltaY = messageSplit[4];
+
             Player player = null; 
             for (Player p : listPlayer){
                 if (p.getUsername().equals(username)){
                      player = p;
                 }
             }
-            player.moveY(Integer.valueOf(deltaY));
+            try {
+                player.moveY(Integer.valueOf(deltaY));
+            } catch (Error error) {
+                System.out.printf(error.getMessage());
+            }
+
             Set<Session> sessions = roomMap.get(roomId);
 
             String text = "{\"username\": \"" + username + "\", \"deltaY\": " + deltaY + "}";
             for (Session s : sessions) {
                 s.getBasicRemote().sendText(text);
-
+                if (player.getPosition().getX() >= 48000) {
+                    String textFinish = "{\"username\": \"" + username + "\", \"place\": " + listPlayer.stream().filter(p -> p.getRoom().equals(roomId) && p.getPosition().getX() >= 48000).count() + 1 + "}";
+                    s.getBasicRemote().sendText(textFinish);
+                }
             }
 
 
@@ -120,24 +137,23 @@ public class ConnexionWebSocketController {
             String textPlayer = "{\"type\": \"player\",";
             String textFinish = "{\"type\": \"finish\",";
             for (Player player : listPlayerInRoomStillInGame){
-                    player.moveX();
-                    textPlayer = textPlayer + "\"" + player.getUsername() + "\": {\"positionX\":\"" + player.getPosition().getX() + "\", \"positionY\": " + player.getPosition().getY() + "}";
-                    if (!player.equals(listPlayerInRoomStillInGame.get(listPlayerInRoomStillInGame.size() -1))){
-                        textPlayer = textPlayer + ",";
-                    };
-                    if (player.getPosition().getX() >= 48000) {
-                        textFinish = textFinish + "\"username\": \"" + player.getUsername() + "\", \"place\": " + (listPlayer.stream().filter(p -> p.getRoom().equals(finalRoomId) && p.getPosition().getX() >= 48000).count() + 1) + "}";
-                        for (Session s : sessions){
-                            s.getBasicRemote().sendText(textFinish);
-                        }
+                player.moveX();
+                textPlayer = textPlayer + "\"" + player.getUsername() + "\": {\"positionX\":\"" + player.getPosition().getX() + "\", \"positionY\": " + player.getPosition().getY() + "}";
+                if (!player.equals(listPlayerInRoomStillInGame.get(listPlayerInRoomStillInGame.size() -1))){
+                    textPlayer = textPlayer + ",";
+                };
+                if (player.getPosition().getX() >= 48000) {
+                    textFinish = textFinish + "\"username\": \"" + player.getUsername() + "\", \"place\": " + (listPlayer.stream().filter(p -> p.getRoom().equals(finalRoomId) && p.getPosition().getX() >= 48000).count() + 1) + "}";
+                    for (Session s : sessions){
+                        s.getBasicRemote().sendText(textFinish);
                     }
                 }
-                textPlayer = textPlayer + "}";
-                for (Session s : sessions){
-                    s.getBasicRemote().sendText(textPlayer);
-                }
-
             }
+            textPlayer = textPlayer + "}";
+            for (Session s : sessions){
+                s.getBasicRemote().sendText(textPlayer);
+            }
+        }
         }
 
     @OnOpen
@@ -165,7 +181,7 @@ public class ConnexionWebSocketController {
         // Number of rooms + 1
         onlinePersons.incrementAndGet();
 
-        Player player = new Player(new Position(0,300), obstacleList);
+        Player player = new Player(new Position(0,301), obstacleList);
         player.setRoom(roomId);
         player.setUsername(username);
         listPlayer.add(player);
