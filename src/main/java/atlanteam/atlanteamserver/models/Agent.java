@@ -21,4 +21,8 @@ public abstract class Agent {
 
     public Position getPosition(){return position;}
 
+    public void resetLastTimeUpdated(){
+        this.lastTimeUpdated = System.currentTimeMillis();
+    }
+
 }
