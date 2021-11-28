@@ -181,7 +181,7 @@ public class ConnexionWebSocketController {
         // Number of rooms + 1
         onlinePersons.incrementAndGet();
 
-        Player player = new Player(new Position(0,301), obstacleList);
+        Player player = new Player(new Position(25,301), obstacleList);
         player.setRoom(roomId);
         player.setUsername(username);
         listPlayer.add(player);
