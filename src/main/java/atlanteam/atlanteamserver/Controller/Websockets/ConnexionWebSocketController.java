@@ -117,7 +117,7 @@ public class ConnexionWebSocketController {
                     if (!player.equals(listPlayerInRoomStillInGame.get(listPlayerInRoomStillInGame.size() -1))){
                         textPlayer = textPlayer + ",";
                     };
-                    if (player.getPosition().getX() >= 3000) {
+                    if (player.getPosition().getX() >= 48000) {
                         textFinish = textFinish + "\"username\": \"" + player.getUsername() + "\", \"place\": " + (listPlayer.stream().filter(p -> p.getRoom().equals(finalRoomId) && p.getPosition().getX() >= 48000).count() + 1) + "}";
                         for (Session s : sessions){
                             s.getBasicRemote().sendText(textFinish);
