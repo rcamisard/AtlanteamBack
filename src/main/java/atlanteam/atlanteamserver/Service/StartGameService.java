@@ -17,12 +17,13 @@ import java.util.Set;
 @Service
 public class StartGameService {
 
+    static public int NB_TRASH = 400;
 
     @Autowired
     ConnexionWebSocketController connexionWebSocketController;
 
     public void initiateGame(String message) throws IOException {
-        connexionWebSocketController.countIterations = 0;
+
         String roomId = message.replace("startGame", "");
         roomId = roomId.replace("/", "");
         Set<Session> sessions = connexionWebSocketController.roomMap.get(roomId);
@@ -44,7 +45,7 @@ public class StartGameService {
     }
 
     private void initiateObstacles() {
-        for (int i = 1; i < connexionWebSocketController.NB_TRASH; i++) {
+        for (int i = 1; i < NB_TRASH; i++) {
             Random ran = new Random();
             int x = ran.nextInt(50000);
             Obstacle obstacle = new Obstacle(new Position(x, 50));
@@ -65,7 +66,7 @@ public class StartGameService {
 
         for (Obstacle obstacle : connexionWebSocketController.obstacleList){
             textObstacle = textObstacle + "\"" + connexionWebSocketController.obstacleList.indexOf(obstacle) + "\": {\"positionX\":\"" + obstacle.getPosition().getX() + "\", \"positionY\": " + "\"" + obstacle.getPosition().getY() + "\", \"typeObstacle\": " + "\"" + obstacle.getType() + "\"" + "}";
-            if (connexionWebSocketController.obstacleList.indexOf(obstacle) != connexionWebSocketController.NB_TRASH) {
+            if (connexionWebSocketController.obstacleList.indexOf(obstacle) != NB_TRASH) {
                 textObstacle = textObstacle + ",";
             }
         }
