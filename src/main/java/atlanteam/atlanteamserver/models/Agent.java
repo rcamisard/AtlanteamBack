@@ -10,7 +10,7 @@ public abstract class Agent {
 
     public Agent(Position position){
         lastTimeUpdated = System.currentTimeMillis();
-        this.speedX = 0.3;
+        this.speedX = 0.8;
         this.speedY = 10;
         this.position = position;
     }

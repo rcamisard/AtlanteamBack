@@ -80,7 +80,6 @@ public class ConnexionWebSocketController {
                      player = p;
                 }
             }
-            System.out.println(listPlayer.size());
             try {
                 player.moveY(Integer.valueOf(deltaY));
             } catch (Error error) {
