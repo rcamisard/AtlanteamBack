@@ -46,7 +46,7 @@ public class ConnexionWebSocketController {
             for (int i = 1; i <= NB_TRASH; i++) {
                 Random ran = new Random();
                 int x = ran.nextInt(50000);
-                Obstacle obstacle = new Obstacle(new Position(x, 0));
+                Obstacle obstacle = new Obstacle(new Position(x, 50));
                 obstacle.setDelayFall(Math.floor(x * Math.random() / 3));
                 obstacle.setType("trash");
                 obstacleList.add(obstacle);
@@ -55,7 +55,7 @@ public class ConnexionWebSocketController {
                     textObstacle = textObstacle + ",";
                 }
             }
-            Obstacle shark = new Obstacle(new Position(5000, 0));
+            Obstacle shark = new Obstacle(new Position(40000, 450));
             shark.setType("shark");
             shark.setSpeedX(-0.5);
             obstacleList.add(shark);
