@@ -55,8 +55,11 @@ public class ConnexionWebSocketController {
                     textObstacle = textObstacle + ",";
                 }
             }
-            
-
+            Obstacle shark = new Obstacle(new Position(5000, 0));
+            shark.setType("shark");
+            shark.setSpeedX(-0.5);
+            obstacleList.add(shark);
+            textObstacle = textObstacle + ",\"" + (NB_TRASH+1) + "\": {\"positionX\":\"" + shark.getPosition().getX() + "\", \"positionY\": " + "\"" + shark.getPosition().getY() + "\", \"typeObstacle\": " + "\"" + shark.getType() + "\"" + "}";
             textObstacle = textObstacle + "}";
             for (Session s : sessions) {
                 s.getBasicRemote().sendText("GAME_STARTING");
@@ -87,8 +90,10 @@ public class ConnexionWebSocketController {
         } else if (message.contains("loopGame")) {
             countIterations++;
             for (Obstacle obstacle : obstacleList) {
-                if (countIterations > obstacle.getDelayFall() && obstacle.getPosition().getY() <= (600 - 600*55/800 - 65)) {
+                if (countIterations > obstacle.getDelayFall() && obstacle.getPosition().getY() <= (600 - 600*55/800 - 65) && obstacle.getType().equals("trash")) {
                     obstacle.getPosition().setY(obstacle.getPosition().getY() + 1);
+                } else if (obstacle.getType().equals("shark")){
+                    obstacle.moveX();
                 }
             }
 
@@ -97,9 +102,9 @@ public class ConnexionWebSocketController {
             Set<Session> sessions = roomMap.get(roomId);
             String textObstacle = "";
             textObstacle = textObstacle + "{\"type\": \"obstacles\",";
-            for (int i = 1; i <= NB_TRASH; i++) {
+            for (int i = 1; i <= NB_TRASH + 1; i++) {
                 textObstacle = textObstacle + "\"" + i + "\": {\"positionX\":\"" + obstacleList.get(i - 1).getPosition().getX() + "\", \"positionY\": " + "\"" + obstacleList.get(i - 1).getPosition().getY() + "\", \"typeObstacle\": " + "\"" + obstacleList.get(i-1).getType() + "\"" + "}";
-                if (i != NB_TRASH) {
+                if (i != NB_TRASH + 1) {
                     textObstacle = textObstacle + ",";
                 }
             }
