@@ -13,7 +13,7 @@ import java.util.Set;
 public class MoveFishService {
 
     @Autowired
-    ConnexionWebSocketController connexionWebSocketController;
+    StartGameService startGameService;
 
     public void moveFish(String message) throws IOException {
         //Parse du message
@@ -24,7 +24,7 @@ public class MoveFishService {
 
         //On récupère le joueur qui a bougé et on met à jour ses données
         Player player = null;
-        for (Player p : connexionWebSocketController.listPlayer){
+        for (Player p : startGameService.listPlayer){
             if (p.getUsername().equals(username)){
                 player = p;
             }
@@ -35,7 +35,7 @@ public class MoveFishService {
             System.out.printf(error.getMessage());
         }
 
-        Set<Session> sessions = connexionWebSocketController.roomMap.get(roomId);
+        Set<Session> sessions = startGameService.roomMap.get(roomId);
         sendTextMoveFishToWS(sessions, username, deltaY);
     }
 
