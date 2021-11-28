@@ -1,6 +1,6 @@
-package atlanteam.atlanteamserver.Controller;
+package atlanteam.atlanteamserver.Controller.Http;
 
-import atlanteam.atlanteamserver.Service.Connexion.ConnexionService;
+import atlanteam.atlanteamserver.Service.ConnexionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
