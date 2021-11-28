@@ -4,12 +4,13 @@ import java.util.ArrayList;
 
 public abstract class Agent {
     protected Position position;
-    protected int speedX, speedY, height = 20, width = 20;
+    protected int speedY, height = 20, width = 20;
+    protected double speedX;
     protected long lastTimeUpdated;
 
     public Agent(Position position){
         lastTimeUpdated = System.currentTimeMillis();
-        this.speedX = 10;
+        this.speedX = 0.5;
         this.speedY = 10;
         this.position = position;
     }

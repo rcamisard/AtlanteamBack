@@ -30,7 +30,7 @@ public class Player extends Agent {
         lastTimeUpdated = System.currentTimeMillis();
     }
 
-    public void moveY(int value){position.setY(value + speedY + position.getY());}
+    public void moveY(int value){position.setY(value + position.getY());}
 
     public boolean didHitObstacle(){
         for(Obstacle obstacle : obstacles){

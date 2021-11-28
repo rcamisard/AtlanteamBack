@@ -6,8 +6,6 @@ import atlanteam.atlanteamserver.models.Position;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
-import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
@@ -36,6 +34,7 @@ public class ConnexionWebSocketController {
 
     @OnMessage
     public void startGame(String message) throws IOException {
+        int NB_TRASH = 400;
 
         if (message.contains("startGame")) {
             String roomId = message.replace("startGame", "");
@@ -44,14 +43,14 @@ public class ConnexionWebSocketController {
             String textObstacle = "";
             textObstacle = textObstacle + "{\"type\": \"obstacles\",";
 
-            for (int i = 1; i <= 90; i++) {
+            for (int i = 1; i <= NB_TRASH; i++) {
                 Random ran = new Random();
-                int x = ran.nextInt(50000) - 50000;
+                int x = ran.nextInt(50000);
                 Obstacle obstacle = new Obstacle(new Position(x, 0));
-                obstacle.setDelayFall(Math.floor(Math.random() * 10000));
+                obstacle.setDelayFall(Math.floor(x / 100 * (1 + Math.random())));
                 obstacleList.add(obstacle);
                 textObstacle = textObstacle + "\"" + i + "\": {\"positionX\":\"" + obstacle.getPosition().getX() + "\", \"positionY\": " + obstacle.getPosition().getY() + "}";
-                if (i != 90) {
+                if (i != NB_TRASH) {
                     textObstacle = textObstacle + ",";
                 }
             }
@@ -66,15 +65,19 @@ public class ConnexionWebSocketController {
             String roomId = messageSplit[2];
             String username = messageSplit[3];
             String deltaY = messageSplit[4];
-
-            Optional<Player> player = listPlayer.stream().filter(p -> p.getUsername().equals(username)).findFirst();
-            player.get().moveY(Integer.valueOf(deltaY));
+            Player player = null; 
+            for (Player p : listPlayer){
+                if (p.getUsername().equals(username)){
+                     player = p;
+                }
+            }
+            player.moveY(Integer.valueOf(deltaY));
             Set<Session> sessions = roomMap.get(roomId);
 
             String text = "{\"username\": \"" + username + "\", \"deltaY\": " + deltaY + "}";
             for (Session s : sessions) {
                 s.getBasicRemote().sendText(text);
-                if (player.get().getPosition().getX() <= -50000) {
+                if (player.getPosition().getX() <= -50000) {
                     String textFinish = "{\"username\": \"" + username + "\", \"place\": " + listPlayer.stream().filter(p -> p.getRoom().equals(roomId) && p.getPosition().getX() <= -50000).count() + 1 + "}";
                     s.getBasicRemote().sendText(textFinish);
                 }
@@ -84,8 +87,8 @@ public class ConnexionWebSocketController {
         } else if (message.contains("loopGame")) {
             countIterations++;
             for (Obstacle obstacle : obstacleList) {
-                if (countIterations > obstacle.getDelayFall()) {
-                    obstacle.getPosition().setY(obstacle.getPosition().getY() - 1);
+                if (countIterations > obstacle.getDelayFall() && obstacle.getPosition().getY() <= (600 - 600*55/800 - 65)) {
+                    obstacle.getPosition().setY(obstacle.getPosition().getY() + 1);
                 }
             }
 
@@ -94,9 +97,9 @@ public class ConnexionWebSocketController {
             Set<Session> sessions = roomMap.get(roomId);
             String textObstacle = "";
             textObstacle = textObstacle + "{\"type\": \"obstacles\",";
-            for (int i = 1; i <= 90; i++) {
+            for (int i = 1; i <= NB_TRASH; i++) {
                 textObstacle = textObstacle + "\"" + i + "\": {\"positionX\":\"" + obstacleList.get(i - 1).getPosition().getX() + "\", \"positionY\": " + obstacleList.get(i - 1).getPosition().getY() + "}";
-                if (i != 90) {
+                if (i != NB_TRASH) {
                     textObstacle = textObstacle + ",";
                 }
             }
@@ -112,7 +115,7 @@ public class ConnexionWebSocketController {
             String textPlayer = "{\"type\": \"player\",";
                 for (Player player : listPlayerInRoomStillInGame){
                     player.moveX();
-                    textPlayer = textPlayer + "\"" + listPlayerInRoomStillInGame.indexOf(player) + 1 + "\": {\"positionX\":\"" + player.getPosition().getX() + "\", \"positionY\": " + player.getPosition().getY() + "}";
+                    textPlayer = textPlayer + "\"" + player.getUsername() + "\": {\"positionX\":\"" + player.getPosition().getX() + "\", \"positionY\": " + player.getPosition().getY() + "}";
                     if (!player.equals(listPlayerInRoomStillInGame.get(listPlayerInRoomStillInGame.size() -1))){
                         textPlayer = textPlayer + ",";
                     };
