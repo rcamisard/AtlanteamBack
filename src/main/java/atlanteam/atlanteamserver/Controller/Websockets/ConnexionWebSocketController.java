@@ -47,7 +47,7 @@ public class ConnexionWebSocketController {
                 Random ran = new Random();
                 int x = ran.nextInt(50000);
                 Obstacle obstacle = new Obstacle(new Position(x, 0));
-                obstacle.setDelayFall(Math.floor(x / 100 * (1 + Math.random())));
+                obstacle.setDelayFall(Math.floor(x * Math.random() / 3));
                 obstacleList.add(obstacle);
                 textObstacle = textObstacle + "\"" + i + "\": {\"positionX\":\"" + obstacle.getPosition().getX() + "\", \"positionY\": " + obstacle.getPosition().getY() + "}";
                 if (i != NB_TRASH) {
