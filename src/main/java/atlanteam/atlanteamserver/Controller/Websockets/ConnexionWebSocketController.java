@@ -33,6 +33,7 @@ public class ConnexionWebSocketController {
     private static Map<String, List<String>> userRoomMap = new HashMap<>();
     private static int countIterations = 0;
     private static List<Obstacle> obstacleList = new ArrayList<>();
+
     @OnMessage
     public void startGame(String message) throws IOException {
 
@@ -47,7 +48,7 @@ public class ConnexionWebSocketController {
                 Random ran = new Random();
                 int x = ran.nextInt(50000) - 50000;
                 Obstacle obstacle = new Obstacle(new Position(x, 0));
-                obstacle.setDelayFall(Math.floor(Math.random() * 100));
+                obstacle.setDelayFall(Math.floor(Math.random() * 10000));
                 obstacleList.add(obstacle);
                 textObstacle = textObstacle + "\"" + i + "\": {\"positionX\":\"" + obstacle.getPosition().getX() + "\", \"positionY\": " + obstacle.getPosition().getY() + "}";
                 if (i != 90) {
@@ -83,8 +84,8 @@ public class ConnexionWebSocketController {
         } else if (message.contains("loopGame")) {
             countIterations++;
             for (Obstacle obstacle : obstacleList) {
-                if (countIterations > obstacle.getDelayFall() && obstacle.getPosition().getY() >= (600 * 55 / 800)) {
-                    obstacle.getPosition().setY(10);
+                if (countIterations > obstacle.getDelayFall()) {
+                    obstacle.getPosition().setY(obstacle.getPosition().getY() - 1);
                 }
             }
 
@@ -101,9 +102,12 @@ public class ConnexionWebSocketController {
             }
 
             textObstacle = textObstacle + "}";
+
             for (Session s : sessions) {
                 s.getBasicRemote().sendText(textObstacle.toString());
-            /*List<Player> listPlayerInRoom = listPlayer.stream().filter(p -> p.getRoom().equals(finalRoomId)).collect(Collectors.toList());
+            }
+            String finalRoomId = roomId;
+            List<Player> listPlayerInRoom = listPlayer.stream().filter(p -> p.getRoom().equals(finalRoomId)).collect(Collectors.toList());
             List<Player> listPlayerInRoomStillInGame = listPlayerInRoom.stream().filter(p -> p.getPosition().getX() > -50000).collect(Collectors.toList());
             String textPlayer = "{\"type\": \"player\",";
                 for (Player player : listPlayerInRoomStillInGame){
@@ -116,10 +120,9 @@ public class ConnexionWebSocketController {
                 textPlayer = textPlayer + "}";
                 for (Session s : sessions){
                     s.getBasicRemote().sendText(textPlayer);
-                } */
+                }
             }
         }
-    }
 
     @OnOpen
     @ResponseStatus(HttpStatus.OK)

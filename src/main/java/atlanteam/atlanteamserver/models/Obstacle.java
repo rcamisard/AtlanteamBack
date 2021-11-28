@@ -26,3 +26,4 @@ public class Obstacle extends Agent {
     public void moveY(int value){position.setY(value + speedY + position.getY());}
 
     }
+
