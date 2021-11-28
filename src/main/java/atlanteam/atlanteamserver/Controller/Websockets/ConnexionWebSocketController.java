@@ -30,7 +30,7 @@ public class ConnexionWebSocketController {
     private static Map<String,Set> roomMap = new ConcurrentHashMap(8);
     private static Map<String, List<String>> userRoomMap = new HashMap<>();
     private static int countIterations = 0;
-    private static List<Obstacle> obstacleList = new ArrayList<>();
+    private static ArrayList<Obstacle> obstacleList = new ArrayList<>();
 
     @OnMessage
     public void startGame(String message) throws IOException {
@@ -152,7 +152,7 @@ public class ConnexionWebSocketController {
         // Number of rooms + 1
         onlinePersons.incrementAndGet();
 
-        Player player = new Player(new Position(0,0), new ArrayList<Obstacle>());
+        Player player = new Player(new Position(0,300), obstacleList);
         player.setRoom(roomId);
         player.setUsername(username);
         listPlayer.add(player);

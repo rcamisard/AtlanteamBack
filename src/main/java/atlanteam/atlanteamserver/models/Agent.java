@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 public abstract class Agent {
     protected Position position;
-    protected int speedY, height = 20, width = 20;
+    protected int speedY, height = 80, width = 80;
     protected double speedX;
     protected long lastTimeUpdated;
 
