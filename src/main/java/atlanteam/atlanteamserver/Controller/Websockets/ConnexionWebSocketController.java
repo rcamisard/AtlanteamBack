@@ -41,6 +41,7 @@ public class ConnexionWebSocketController {
     public static Map<String, List<String>> userRoomMap = new HashMap<>();
     public static int countIterations = 0;
     public static ArrayList<Obstacle> obstacleList = new ArrayList<>();
+    static public int NB_TRASH = 400;
 
     @OnMessage
     public void startGame(String message) throws IOException {
@@ -48,37 +49,7 @@ public class ConnexionWebSocketController {
         if (message.contains("startGame")) {
             startGameService.initiateGame(message);
         } else if (message.contains("moveFish")) {
-           // moveFishService.moveFish(message);
-
-            String[] messageSplit = message.split("/");
-            String roomId = messageSplit[2];
-            String username = messageSplit[3];
-            String deltaY = messageSplit[4];
-
-            Player player = null; 
-            for (Player p : listPlayer){
-                if (p.getUsername().equals(username)){
-                     player = p;
-                }
-            }
-            try {
-                player.moveY(Integer.valueOf(deltaY));
-            } catch (Error error) {
-                System.out.printf(error.getMessage());
-            }
-
-            Set<Session> sessions = roomMap.get(roomId);
-
-            String text = "{\"username\": \"" + username + "\", \"deltaY\": " + deltaY + "}";
-            for (Session s : sessions) {
-                s.getBasicRemote().sendText(text);
-                if (player.getPosition().getX() >= 48000) {
-                    String textFinish = "{\"username\": \"" + username + "\", \"place\": " + listPlayer.stream().filter(p -> p.getRoom().equals(roomId) && p.getPosition().getX() >= 48000).count() + 1 + "}";
-                    s.getBasicRemote().sendText(textFinish);
-                }
-            }
-
-
+            moveFishService.moveFish(message);
         } else if (message.contains("loopGame")) {
             countIterations++;
             for (Obstacle obstacle : obstacleList) {
