@@ -35,7 +35,7 @@ public class ConnexionWebSocketController {
     @OnMessage
     public void startGame(String message) throws IOException {
         int NB_TRASH = 400;
-
+        countIterations = 0;
         if (message.contains("startGame")) {
             String roomId = message.replace("startGame", "");
             roomId = roomId.replace("/", "");
