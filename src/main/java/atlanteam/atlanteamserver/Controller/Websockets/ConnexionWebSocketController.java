@@ -48,12 +48,15 @@ public class ConnexionWebSocketController {
                 int x = ran.nextInt(50000);
                 Obstacle obstacle = new Obstacle(new Position(x, 0));
                 obstacle.setDelayFall(Math.floor(x * Math.random() / 3));
+                obstacle.setType("trash");
                 obstacleList.add(obstacle);
-                textObstacle = textObstacle + "\"" + i + "\": {\"positionX\":\"" + obstacle.getPosition().getX() + "\", \"positionY\": " + obstacle.getPosition().getY() + "}";
+                textObstacle = textObstacle + "\"" + i + "\": {\"positionX\":\"" + obstacle.getPosition().getX() + "\", \"positionY\": " + "\"" + obstacle.getPosition().getY() + "\", \"typeObstacle\": " + "\"" + obstacle.getType() + "\"" + "}";
                 if (i != NB_TRASH) {
                     textObstacle = textObstacle + ",";
                 }
             }
+            
+
             textObstacle = textObstacle + "}";
             for (Session s : sessions) {
                 s.getBasicRemote().sendText("GAME_STARTING");
@@ -95,7 +98,7 @@ public class ConnexionWebSocketController {
             String textObstacle = "";
             textObstacle = textObstacle + "{\"type\": \"obstacles\",";
             for (int i = 1; i <= NB_TRASH; i++) {
-                textObstacle = textObstacle + "\"" + i + "\": {\"positionX\":\"" + obstacleList.get(i - 1).getPosition().getX() + "\", \"positionY\": " + obstacleList.get(i - 1).getPosition().getY() + "}";
+                textObstacle = textObstacle + "\"" + i + "\": {\"positionX\":\"" + obstacleList.get(i - 1).getPosition().getX() + "\", \"positionY\": " + "\"" + obstacleList.get(i - 1).getPosition().getY() + "\", \"typeObstacle\": " + "\"" + obstacleList.get(i-1).getType() + "\"" + "}";
                 if (i != NB_TRASH) {
                     textObstacle = textObstacle + ",";
                 }
