@@ -77,10 +77,7 @@ public class ConnexionWebSocketController {
             String text = "{\"username\": \"" + username + "\", \"deltaY\": " + deltaY + "}";
             for (Session s : sessions) {
                 s.getBasicRemote().sendText(text);
-                if (player.getPosition().getX() <= -50000) {
-                    String textFinish = "{\"username\": \"" + username + "\", \"place\": " + listPlayer.stream().filter(p -> p.getRoom().equals(roomId) && p.getPosition().getX() <= -50000).count() + 1 + "}";
-                    s.getBasicRemote().sendText(textFinish);
-                }
+
             }
 
 
@@ -111,19 +108,27 @@ public class ConnexionWebSocketController {
             }
             String finalRoomId = roomId;
             List<Player> listPlayerInRoom = listPlayer.stream().filter(p -> p.getRoom().equals(finalRoomId)).collect(Collectors.toList());
-            List<Player> listPlayerInRoomStillInGame = listPlayerInRoom.stream().filter(p -> p.getPosition().getX() > -50000).collect(Collectors.toList());
+            List<Player> listPlayerInRoomStillInGame = listPlayerInRoom.stream().filter(p -> p.getPosition().getX() <= 48000).collect(Collectors.toList());
             String textPlayer = "{\"type\": \"player\",";
-                for (Player player : listPlayerInRoomStillInGame){
+            String textFinish = "{\"type\": \"finish\",";
+            for (Player player : listPlayerInRoomStillInGame){
                     player.moveX();
                     textPlayer = textPlayer + "\"" + player.getUsername() + "\": {\"positionX\":\"" + player.getPosition().getX() + "\", \"positionY\": " + player.getPosition().getY() + "}";
                     if (!player.equals(listPlayerInRoomStillInGame.get(listPlayerInRoomStillInGame.size() -1))){
                         textPlayer = textPlayer + ",";
                     };
+                    if (player.getPosition().getX() >= 3000) {
+                        textFinish = textFinish + "\"username\": \"" + player.getUsername() + "\", \"place\": " + (listPlayer.stream().filter(p -> p.getRoom().equals(finalRoomId) && p.getPosition().getX() >= 48000).count() + 1) + "}";
+                        for (Session s : sessions){
+                            s.getBasicRemote().sendText(textFinish);
+                        }
+                    }
                 }
                 textPlayer = textPlayer + "}";
                 for (Session s : sessions){
                     s.getBasicRemote().sendText(textPlayer);
                 }
+
             }
         }
 
