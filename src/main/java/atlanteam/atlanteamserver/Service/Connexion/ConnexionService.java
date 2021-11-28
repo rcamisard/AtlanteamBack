@@ -1,4 +1,4 @@
-package atlanteam.atlanteamserver.Service;
+package atlanteam.atlanteamserver.Service.Connexion;
 
 import atlanteam.atlanteamserver.Controller.Websockets.ConnexionWebSocketController;
 import org.springframework.beans.factory.annotation.Autowired;
